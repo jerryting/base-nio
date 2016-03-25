@@ -101,7 +101,7 @@ task versionInfo <<{
 }
 
 task svnTag (type: at.bxm.gradleplugins.svntools.tasks.SvnTag){
-  svnUrl = 'http://192.168.1.101/svn/polarlight/trunk/client-android/basenio-2.0-beta'
+  //svnUrl = 'http://192.168.1.101/svn/polarlight/trunk/client-android/basenio-2.0-beta'
   username = authSvnUser
   password = authSvnPwd
   def tagPath = "basenio-2.0/"
