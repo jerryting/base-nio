@@ -14,7 +14,7 @@ Basenio does not implements any protocol base on tcp or udp, It transfer all dat
 
 ##How to use
 
-> Firstly you must deeply read the demo codes in **/src/main/java/test**> 
+> Firstly you must deeply read the demo codes in **/src/main/java/test**
 
 * get all source codes, and then use MAVEN build a jar package ,import this jar package to your project.
 * directly use we provided the lastest release jar.
