@@ -1,0 +1,143 @@
+/**
+* @author : DJ@201509
+* @summary: Java application 's gradle build script
+* @cmd & task: gradle build
+*			   gradle eclipse
+*			   gradle cleanEclipse
+*			   gradle publish
+*			   gradle release
+*			   gredle version
+*/
+
+import java.util.regex.Pattern
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+apply plugin: 'at.bxm.svntools'
+
+tasks.withType(JavaCompile){
+	options.encoding = 'UTF-8'
+}
+
+sourceCompatibility = 1.7
+
+ext{
+	artifactIdName = 'polarlight-basenio'
+	groupId = 'com.polarlight.commons'
+	authSvnUser='builder'
+	authSvnPwd='builder'
+}
+
+archivesBaseName = artifactIdName
+version = "2.0.2"
+
+repositories {				//mvn中央库依赖配置
+	maven {url 'http://192.168.1.8:8081/nexus/content/groups/public'}
+	jcenter()
+	//mavenCentral()
+}
+
+dependencies {				//依赖包声明
+	compile 'log4j:log4j:1.2.16'
+	compile 'org.slf4j:slf4j-api:1.6.2'
+	compile 'org.slf4j:slf4j-log4j12:1.6.2'
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir 'src/java'
+		}
+		resources {
+			srcDir 'src/resources'
+		}
+	}
+}
+
+jar {
+	manifest {
+		attributes 'Implementation-Title': 'polarlight-basenio-v2',
+				   'Implementation-Version': version
+	}
+}
+
+publishing {				//发布到mvn中央库
+	publications {
+        mavenJava(MavenPublication) {
+			from components.java
+		    groupId 'com.polarlight.commons'
+            artifactId artifactIdName
+            version version
+        }
+    }
+	repositories {
+        maven {
+            url "http://192.168.1.8:8081/nexus/content/repositories/releases"
+			// url "$buildDir/repo"
+			credentials {
+              username = 'deployment'
+              password = 'www.ixinyou.com'
+            }
+        }
+    }
+}
+
+buildscript {			// svn plugin
+  repositories {
+    /*maven {
+      url 'https://plugins.gradle.org/m2/'
+    }*/
+	jcenter()
+  }
+  dependencies {
+    classpath "at.bxm.gradleplugins:gradle-svntools-plugin:1.2.1"
+  }
+}
+
+task versionInfo <<{
+  println "::Build version is $version"
+  println "::Current svn revision is $svntools.info.revisionNumber" 
+}
+
+task svnTag (type: at.bxm.gradleplugins.svntools.tasks.SvnTag){
+  svnUrl = 'http://192.168.1.101/svn/polarlight/trunk/client-android/basenio-2.0-beta'
+  username = authSvnUser
+  password = authSvnPwd
+  def tagPath = "basenio-2.0/"
+  tagName = tagPath+"$project.archivesBaseName-$project.version-SNAPSHOT"
+  commitMessage = "Release version $tagName"
+  replaceExisting = true
+}
+
+task increaseVersion << {								//版本号自增长
+    def buildFile = file("build.gradle")
+    def pattern = Pattern.compile('version[\\s]*=[\\s]*"(\\d+)\\.(\\d+)\\.(\\d+)"')
+    def buildText = buildFile.getText()
+    def matcherVersionNumber = pattern.matcher(buildText)
+    matcherVersionNumber.find()
+    def majorVersion = Integer.parseInt(matcherVersionNumber.group(1))
+    def minorVersion = Integer.parseInt(matcherVersionNumber.group(2))
+    def buildVersion = Integer.parseInt(matcherVersionNumber.group(3))
+    def mNextVersion = majorVersion + '.' + minorVersion + '.' + (buildVersion + 1)
+    def buildFileContent = matcherVersionNumber.replaceAll('version = ' + '"' + mNextVersion + '"')
+    buildFile.write(buildFileContent)
+	println '::increaseVersion next version is '+ mNextVersion
+}
+
+task commitChangedGradle (type: at.bxm.gradleplugins.svntools.tasks.SvnCommit){
+  username = authSvnUser
+  password = authSvnPwd
+  source << file("build.gradle")
+  commitMessage = "Release version $project.version"
+}
+
+task release (dependsOn: ['clean','build','svnTag','increaseVersion','commitChangedGradle']){
+}
+
+release.mustRunAfter commitChangedGradle
+commitChangedGradle.mustRunAfter increaseVersion
+increaseVersion.mustRunAfter svnTag
+svnTag.mustRunAfter build
+build.mustRunAfter clean
+build.dependsOn versionInfo,clean
