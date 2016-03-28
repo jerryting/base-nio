@@ -19,15 +19,15 @@ Basenio does not implements any protocol base on tcp or udp, It transfer all dat
 * get all source codes, and then use MAVEN build a jar package ,import this jar package to your project.
 * directly use we provided the lastest release jar.
 
-##Application Scenario
+##Application Scenarios
 
 * high performance TCP server based on byte protocol.
 * One flexible TCP client that can connect to a tcp server , and transfer byte data.
 * A UDP client that send a bound byte message .
-* UDP server listen udp port ,receive byte message. and others, it can be used to a UDP broadcast.
+* UDP server listen udp port ,receive byte message. and others, it can be used to be an UDP broadcast.
 
-##Example
-*the following codes is a TCP server usage , please look up other usages in domo sample。*
+##Examples
+*the following codes is a TCP server usage , please look up other usages in domo samples。*
 
 	package test;
 	import java.net.InetSocketAddress;
@@ -53,5 +53,33 @@ Basenio does not implements any protocol base on tcp or udp, It transfer all dat
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		}
+	}
+
+***
+	
+	package test;
+
+	import java.io.IOException;
+	import java.util.Arrays;
+
+	import com.polarlight.commons.basenio.exception.NioBaseWriteException;
+	import com.polarlight.commons.basenio.io.session.state.IoStateSession;
+	import com.polarlight.commons.basenio.service.IoHandler;
+
+	public class ServerHandler implements IoHandler {
+		@Override
+		public void socketCreated(IoStateSession session) {
+			System.out.println(session.toString() + " [server] enter into channel");
+		}
+
+		@Override
+		public void socketClosed(IoStateSession session) {
+			System.out.println(session.toString() + "[server] closed");
+		}
+
+		@Override
+		public void messageReceived(IoStateSession session, byte[] message) {
+			System.out.println("[server] rev: " + session + "  " + 			Arrays.toString(message));
 		}
 	}
