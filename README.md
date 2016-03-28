@@ -9,7 +9,7 @@ and others. we also provide TCP client and UDP server\client. details in those c
 
 ##Important notice
 
-Basenio does not implement any protocol base on tcp or udp, It transfer all data by **BYTE** for what is whether server or client. and so,  you must package any protocol what you want
+Basenio does not implement any protocol based on tcp or udp, It transfer all data by **BYTE** for what is whether server or client. and so,  you must package any protocol what you want
 
 
 ##How to use
