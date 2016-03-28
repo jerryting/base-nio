@@ -31,8 +31,8 @@ public final class NioSocketServerAccepter extends AbstractPollingIoAccepter<Soc
 	private SelectionKey skey = null;
 
 	public NioSocketServerAccepter() throws Exception {
-		super(NioProcessor.class, null);
-		this.getFilterChain().addFilter("DEFAULT", new DefaultUnboundaryIoFilter());
+		super(NioProcessor.class, null); 
+//		this.getFilterChain().addFilter("DEFAULT", new DefaultUnboundaryIoFilter());  // there is the same code in super class construct method
 	}
 
 	@Override
