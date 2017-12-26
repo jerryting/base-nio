@@ -77,7 +77,7 @@ publishing {				//发布到mvn中央库
 			// url "$buildDir/repo"
 			credentials {
               username = 'deployment'
-              password = 'www.ixinyou.com'
+              password = 'password'
             }
         }
     }
